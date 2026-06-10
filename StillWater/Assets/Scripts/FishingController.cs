@@ -27,8 +27,7 @@ public class FishingController : MonoBehaviour
     public Vector3 castPosition =
         new Vector3(0f, 0.2f, 12f);
 
-    private Vector3 hiddenPosition =
-        new Vector3(0f, -100f, 0f);
+    private Vector3 bobberPocketPosition;
 
     void Start()
     {
@@ -36,8 +35,9 @@ public class FishingController : MonoBehaviour
 
         if (bobber != null)
         {
-            bobber.transform.position =
-                hiddenPosition;
+            // Save bobber's pocket location
+            bobberPocketPosition =
+                bobber.transform.localPosition;
         }
     }
 
@@ -57,12 +57,18 @@ public class FishingController : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
+        bobber.transform.SetParent(null);
+
         // Place bobber in lake
-        if (bobber != null)
-        {
-            bobber.transform.position =
-                castPosition;
-        }
+        yield return StartCoroutine(
+            MoveBobber(
+
+                bobber.transform.position,
+                castPosition,
+                2f
+
+                )
+            );
 
         state = FishingState.Waiting;
         UpdateUI();
@@ -80,12 +86,44 @@ public class FishingController : MonoBehaviour
         // Hide bobber again
         if (bobber != null)
         {
-            bobber.transform.position =
-                hiddenPosition;
+            bobber.transform.SetParent(transform);
+
+            bobber.transform.localPosition =
+                bobberPocketPosition;
         }
 
         state = FishingState.Idle;
         UpdateUI();
+    }
+
+    IEnumerator MoveBobber(
+        Vector3 startPos,
+        Vector3 endPos,
+        float duration)
+    {
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            if (bobber != null)
+            {
+                bobber.transform.position =
+                    Vector3.Lerp(
+                        startPos,
+                        endPos,
+                        elapsedTime / duration
+                        );
+            }
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        if (bobber != null)
+        {
+            bobber.transform.position =
+                endPos;
+        }
     }
 
     void UpdateUI()
