@@ -4,6 +4,14 @@ using TMPro;
 
 public class FishingController : MonoBehaviour
 {
+
+    [Header("Audio")]
+    public AudioSource audioSource;
+
+    public AudioClip ambientSound;
+    public AudioClip castSound;
+    public AudioClip biteSound;
+
     public enum FishingState
     {
         Idle,
@@ -29,12 +37,17 @@ public class FishingController : MonoBehaviour
     public GameObject bobber;
 
     public Vector3 castPosition =
-        new Vector3(0f, 0.2f, 12f);
+        new Vector3(0f, 0.2f, -78f);
 
     private Vector3 bobberPocketPosition;
 
     void Start()
     {
+
+        audioSource.clip = ambientSound;
+        audioSource.loop = true;
+        audioSource.Play();
+
         UpdateUI();
 
         if (bobber != null)
@@ -58,6 +71,8 @@ public class FishingController : MonoBehaviour
     {
         state = FishingState.Casting;
         UpdateUI();
+
+        audioSource.PlayOneShot(castSound);
 
         yield return new WaitForSeconds(0.5f);
 
@@ -84,6 +99,7 @@ public class FishingController : MonoBehaviour
 
         // Fish bites
         state = FishingState.Biting;
+        audioSource.PlayOneShot(biteSound);
 
         yield return StartCoroutine(
             BobberDip()
