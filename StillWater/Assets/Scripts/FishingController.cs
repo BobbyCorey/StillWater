@@ -84,6 +84,11 @@ public class FishingController : MonoBehaviour
 
         // Fish bites
         state = FishingState.Biting;
+
+        yield return StartCoroutine(
+            BobberDip()
+        );
+
         UpdateUI();
 
         float timer = 0f;
@@ -155,6 +160,46 @@ public class FishingController : MonoBehaviour
             bobber.transform.position =
                 endPos;
         }
+    }
+
+    IEnumerator BobberDip()
+    {
+        Vector3 originalPosition =
+            bobber.transform.position;
+
+        // Small nibble 1
+        bobber.transform.position =
+            originalPosition +
+            new Vector3(0f, -0.08f, 0f);
+
+        yield return new WaitForSeconds(0.15f);
+
+        bobber.transform.position =
+            originalPosition;
+
+        yield return new WaitForSeconds(0.5f);
+
+        // Small nibble 2
+        bobber.transform.position =
+            originalPosition +
+            new Vector3(0f, -0.08f, 0f);
+
+        yield return new WaitForSeconds(0.15f);
+
+        bobber.transform.position =
+            originalPosition;
+
+        yield return new WaitForSeconds(0.5f);
+
+        // BIG bite
+        bobber.transform.position =
+            originalPosition +
+            new Vector3(0f, -0.25f, 0f);
+
+        yield return new WaitForSeconds(0.2f);
+
+        bobber.transform.position =
+            originalPosition;
     }
 
     void UpdateUI()
