@@ -9,7 +9,9 @@ public class FishingController : MonoBehaviour
         Idle,
         Casting,
         Waiting,
-        Catch
+        Biting,
+        Catch,
+        Miss
     }
 
     public FishingState state = FishingState.Idle;
@@ -17,6 +19,8 @@ public class FishingController : MonoBehaviour
     [Header("Fishing Settings")]
     public float minCatchTime = 2f;
     public float maxCatchTime = 5f;
+
+    public float biteReactionTime = 1.5f;
 
     [Header("UI")]
     public TextMeshProUGUI fishingText;
@@ -74,11 +78,38 @@ public class FishingController : MonoBehaviour
         UpdateUI();
 
         float waitTime =
-            Random.Range(minCatchTime, maxCatchTime);
+    Random.Range(minCatchTime, maxCatchTime);
 
         yield return new WaitForSeconds(waitTime);
 
-        state = FishingState.Catch;
+        // Fish bites
+        state = FishingState.Biting;
+        UpdateUI();
+
+        float timer = 0f;
+        bool caughtFish = false;
+
+        while (timer < biteReactionTime)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                caughtFish = true;
+                break;
+            }
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        if (caughtFish)
+        {
+            state = FishingState.Catch;
+        }
+        else
+        {
+            state = FishingState.Miss;
+        }
+
         UpdateUI();
 
         yield return new WaitForSeconds(1.5f);
@@ -147,9 +178,19 @@ public class FishingController : MonoBehaviour
                     "Waiting for a bite...";
                 break;
 
+            case FishingState.Biting:
+                fishingText.text =
+                    "FISH BITING! CLICK!";
+                break;
+
             case FishingState.Catch:
                 fishingText.text =
                     "You caught a fish!";
+                break;
+
+            case FishingState.Miss:
+                fishingText.text =
+                    "The fish got away...";
                 break;
         }
     }
