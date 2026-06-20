@@ -18,6 +18,7 @@ public class FishingController : MonoBehaviour
         Casting,
         Waiting,
         Biting,
+        Reeling,
         Catch,
         Miss
     }
@@ -27,6 +28,15 @@ public class FishingController : MonoBehaviour
     [Header("Fishing Settings")]
     public float minCatchTime = 2f;
     public float maxCatchTime = 5f;
+    public float biteReactionTimee = 1.5f;
+
+    [Header("Reeling")]
+    public float reelStrength = 0.7f;
+    public float catchDistance = 2f;
+
+    [Header("Fish Struggle")]
+    public float struggleDistance = 0.5f;
+    public float struggleDuration = 1.5f;
 
     public float biteReactionTime = 1.5f;
 
@@ -105,16 +115,20 @@ public class FishingController : MonoBehaviour
             BobberDip()
         );
 
+        yield return StartCoroutine(
+            FishStruggle()
+            );
+
         UpdateUI();
 
         float timer = 0f;
-        bool caughtFish = false;
+        bool startedReeling = false;
 
         while (timer < biteReactionTime)
         {
             if (Input.GetMouseButtonDown(0))
             {
-                caughtFish = true;
+                startedReeling = true;
                 break;
             }
 
@@ -122,18 +136,39 @@ public class FishingController : MonoBehaviour
             yield return null;
         }
 
-        if (caughtFish)
+        if (!startedReeling)
         {
-            state = FishingState.Catch;
+            state = FishingState.Miss;
+            UpdateUI();
+            yield return new WaitForSeconds(1.5f);
         }
         else
         {
-            state = FishingState.Miss;
+            state = FishingState.Reeling;
+            UpdateUI();
+
+            while (Vector3.Distance(
+                bobber.transform.position,
+                transform.position) > catchDistance)
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    Vector3 direction =
+                        (transform.position -
+                         bobber.transform.position).normalized;
+
+                    bobber.transform.position +=
+                        direction * reelStrength;
+                }
+
+                yield return null;
+            }
+
+            state = FishingState.Catch;
+            UpdateUI();
+
+            yield return new WaitForSeconds(1.5f);
         }
-
-        UpdateUI();
-
-        yield return new WaitForSeconds(1.5f);
 
         // Hide bobber again
         if (bobber != null)
@@ -218,6 +253,55 @@ public class FishingController : MonoBehaviour
             originalPosition;
     }
 
+    IEnumerator FishStruggle()
+    {
+        Vector3 basePosition =
+            bobber.transform.position;
+
+        float timer = 0f;
+
+        while (timer < struggleDuration)
+        {
+            Vector3 targetPosition =
+                basePosition +
+                new Vector3(
+                    Random.Range(
+                        -struggleDistance,
+                        struggleDistance
+                    ),
+                    Random.Range(-0.05f, -0.02f),
+                    Random.Range(
+                        -struggleDistance,
+                        struggleDistance
+                    )
+                );
+
+            float moveTime = 0f;
+            float moveDuration = 0.25f;
+
+            Vector3 startPosition =
+                bobber.transform.position;
+
+            while (moveTime < moveDuration)
+            {
+                bobber.transform.position =
+                    Vector3.Lerp(
+                        startPosition,
+                        targetPosition,
+                        moveTime / moveDuration
+                    );
+
+                moveTime += Time.deltaTime;
+                yield return null;
+            }
+
+            timer += moveDuration;
+        }
+
+        bobber.transform.position =
+            basePosition;
+    }
+
     void UpdateUI()
     {
         if (fishingText == null) return;
@@ -242,6 +326,11 @@ public class FishingController : MonoBehaviour
             case FishingState.Biting:
                 fishingText.text =
                     "FISH BITING! CLICK!";
+                break;
+
+            case FishingState.Reeling:
+                fishingText.text =
+                    "Fish Hooked! Click Fast!";
                 break;
 
             case FishingState.Catch:

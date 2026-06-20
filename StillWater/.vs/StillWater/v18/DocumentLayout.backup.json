@@ -3,8 +3,12 @@
   "WorkspaceRootPath": "E:\\UnityGames\\StillWater\\StillWater\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D72D1E2C-7679-529D-A07B-68816CCFB339}|Assembly-CSharp.csproj|e:\\unitygames\\stillwater\\stillwater\\assets\\scripts\\fishingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D72D1E2C-7679-529D-A07B-68816CCFB339}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\fishingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:2:0:{D72D1E2C-7679-529D-A07B-68816CCFB339}|Assembly-CSharp.csproj|e:\\unitygames\\stillwater\\stillwater\\assets\\scripts\\fishingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:2:0:{D72D1E2C-7679-529D-A07B-68816CCFB339}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\fishingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:1:0:{D72D1E2C-7679-529D-A07B-68816CCFB339}|Assembly-CSharp.csproj|e:\\unitygames\\stillwater\\stillwater\\assets\\scripts\\fishingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:1:0:{D72D1E2C-7679-529D-A07B-68816CCFB339}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\fishingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -24,9 +28,22 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\FishingController.cs",
               "ToolTip": "E:\\UnityGames\\StillWater\\StillWater\\Assets\\Scripts\\FishingController.cs",
               "RelativeToolTip": "Assets\\Scripts\\FishingController.cs",
-              "ViewState": "AgIAAIwAAAAAAAAAAAAIwGkAAAAKAAAAAAAAAA==",
+              "ViewState": "AgIAADABAAAAAAAAAAAcwFEBAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-08T05:18:54.81Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Assets\\Scripts\\FishingController.cs",
+              "DocumentMoniker": "E:\\UnityGames\\StillWater\\StillWater\\Assets\\Scripts\\FishingController.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\FishingController.cs",
+              "ToolTip": "E:\\UnityGames\\StillWater\\StillWater\\Assets\\Scripts\\FishingController.cs",
+              "RelativeToolTip": "Assets\\Scripts\\FishingController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-20T05:08:13.723Z",
               "EditorCaption": ""
             }
           ]
