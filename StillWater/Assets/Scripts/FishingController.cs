@@ -28,7 +28,6 @@ public class FishingController : MonoBehaviour
     [Header("Fishing Settings")]
     public float minCatchTime = 2f;
     public float maxCatchTime = 5f;
-    public float biteReactionTimee = 1.5f;
 
     [Header("Reeling")]
     public float reelStrength = 0.7f;
@@ -45,6 +44,10 @@ public class FishingController : MonoBehaviour
 
     [Header("Bobber")]
     public GameObject bobber;
+
+    [Header("Water")]
+    public float waterHeight = 0.2f;
+
 
     public Vector3 castPosition =
         new Vector3(0f, 0.2f, -78f);
@@ -147,19 +150,57 @@ public class FishingController : MonoBehaviour
             state = FishingState.Reeling;
             UpdateUI();
 
-            while (Vector3.Distance(
-                bobber.transform.position,
-                transform.position) > catchDistance)
+            while (Vector2.Distance(
+                 new Vector2(
+                     bobber.transform.position.x,
+                     bobber.transform.position.z
+                    ),
+                 new Vector2(
+                    transform.position.x,
+                    transform.position.z
+                    )) > catchDistance)
             {
-                if (Input.GetMouseButtonDown(0))
-                {
-                    Vector3 direction =
-                        (transform.position -
-                         bobber.transform.position).normalized;
+                // Fish pulls away
+                Vector3 resistanceDirection =
+                    new Vector3(
+                        bobber.transform.position.x - transform.position.x,
+                        0f,
+                        bobber.transform.position.z - transform.position.z
+                    ).normalized;
 
-                    bobber.transform.position +=
-                        direction * reelStrength;
+                bobber.transform.position +=
+                    resistanceDirection * 0.50f * Time.deltaTime;
+
+                // Fish moves side to side
+                Vector3 sidewaysPull =
+                    new Vector3(
+                        Mathf.Sin(Time.time * 3f) * 0.02f,
+                        0f,
+                        0f
+                    );
+
+                bobber.transform.position += sidewaysPull;
+
+                if (Input.GetMouseButton(0))
+                {
+                    Vector3 playerSurfacePosition =
+                        new Vector3(
+                            transform.position.x,
+                            waterHeight,
+                            transform.position.z
+                        );
+
+                    bobber.transform.position =
+                        Vector3.MoveTowards(
+                            bobber.transform.position,
+                            playerSurfacePosition,
+                            reelStrength * Time.deltaTime
+                        );
                 }
+
+                Vector3 pos = bobber.transform.position;
+                pos.y = waterHeight;
+                bobber.transform.position = pos;
 
                 yield return null;
             }
