@@ -44,13 +44,15 @@ public class FishingController : MonoBehaviour
 
     [Header("Bobber")]
     public GameObject bobber;
+    public Transform rodTip;
+    public LineRenderer fishingLine;
 
     [Header("Water")]
-    public float waterHeight = 0.2f;
+    public float waterHeight = 0.03f;
 
 
     public Vector3 castPosition =
-        new Vector3(0f, 0.2f, -78f);
+        new Vector3(0f, 0.03f, -78f);
 
     private Vector3 bobberPocketPosition;
 
@@ -65,9 +67,8 @@ public class FishingController : MonoBehaviour
 
         if (bobber != null)
         {
-            // Save bobber's pocket location
-            bobberPocketPosition =
-                bobber.transform.localPosition;
+            bobber.transform.position =
+            rodTip.position + new Vector3(0f, -0.5f, 0f);
         }
     }
 
@@ -77,6 +78,12 @@ public class FishingController : MonoBehaviour
             && state == FishingState.Idle)
         {
             StartCoroutine(FishingRoutine());
+        }
+
+        if (fishingLine != null)
+        {
+            fishingLine.SetPosition(0, rodTip.position);
+            fishingLine.SetPosition(1, bobber.transform.position);
         }
     }
 
@@ -89,6 +96,7 @@ public class FishingController : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
+        bobber.transform.position = rodTip.position;
         bobber.transform.SetParent(null);
 
         // Place bobber in lake
@@ -106,7 +114,7 @@ public class FishingController : MonoBehaviour
         UpdateUI();
 
         float waitTime =
-    Random.Range(minCatchTime, maxCatchTime);
+            Random.Range(minCatchTime, maxCatchTime);
 
         yield return new WaitForSeconds(waitTime);
 
@@ -151,15 +159,29 @@ public class FishingController : MonoBehaviour
             UpdateUI();
 
             while (Vector2.Distance(
-                 new Vector2(
-                     bobber.transform.position.x,
-                     bobber.transform.position.z
-                    ),
-                 new Vector2(
+                new Vector2(
+                    bobber.transform.position.x,
+                    bobber.transform.position.z
+                ),
+                new Vector2(
                     transform.position.x,
                     transform.position.z
-                    )) > catchDistance)
+                )) > catchDistance)
             {
+                float distanceToPlayer = Vector2.Distance(
+                    new Vector2(
+                        bobber.transform.position.x,
+                        bobber.transform.position.z
+                    ),
+                    new Vector2(
+                        transform.position.x,
+                        transform.position.z
+                    )
+                );
+
+                float struggleMultiplier =
+                    Mathf.Pow(Mathf.Clamp01(distanceToPlayer / 6f), 2f);
+
                 // Fish pulls away
                 Vector3 resistanceDirection =
                     new Vector3(
@@ -169,18 +191,24 @@ public class FishingController : MonoBehaviour
                     ).normalized;
 
                 bobber.transform.position +=
-                    resistanceDirection * 0.50f * Time.deltaTime;
+                    resistanceDirection *
+                    0.50f *
+                    struggleMultiplier *
+                    Time.deltaTime;
 
                 // Fish moves side to side
                 Vector3 sidewaysPull =
                     new Vector3(
-                        Mathf.Sin(Time.time * 3f) * 0.02f,
+                        Mathf.Sin(Time.time * 3f) *
+                        0.02f *
+                        struggleMultiplier,
                         0f,
                         0f
                     );
 
                 bobber.transform.position += sidewaysPull;
 
+                // Reel in
                 if (Input.GetMouseButton(0))
                 {
                     Vector3 playerSurfacePosition =
@@ -198,12 +226,58 @@ public class FishingController : MonoBehaviour
                         );
                 }
 
+                // Keep bobber on water, then lift near shore
                 Vector3 pos = bobber.transform.position;
-                pos.y = waterHeight;
+
+                if (distanceToPlayer > 6f)
+                {
+                    pos.y = waterHeight;
+                }
+                else
+                {
+                    float liftAmount =
+                        Mathf.Lerp(
+                            waterHeight,
+                            transform.position.y + 1f,
+                            1f - (distanceToPlayer / 6f)
+                        );
+
+                    pos.y = liftAmount;
+                }
+
                 bobber.transform.position = pos;
 
                 yield return null;
             }
+
+            Vector3 rodTipPosition = rodTip.position;
+
+            /*new Vector3(
+                transform.position.x,
+                transform.position.y + 1f,
+                transform.position.z + 1f
+            );*/
+
+            float snapTimer = 0f;
+            float snapDuration = 0.25f;
+
+            Vector3 startPos = bobber.transform.position;
+
+
+            while (snapTimer < snapDuration)
+            {
+                bobber.transform.position =
+                    Vector3.Lerp(
+                        startPos,
+                        rodTipPosition,
+                        snapTimer / snapDuration
+                    );
+
+                snapTimer += Time.deltaTime;
+                yield return null;
+            }
+
+            bobber.transform.position = rodTipPosition;
 
             state = FishingState.Catch;
             UpdateUI();
@@ -214,10 +288,7 @@ public class FishingController : MonoBehaviour
         // Hide bobber again
         if (bobber != null)
         {
-            bobber.transform.SetParent(transform);
-
-            bobber.transform.localPosition =
-                bobberPocketPosition;
+            bobber.transform.position = rodTip.position;
         }
 
         state = FishingState.Idle;
